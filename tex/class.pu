@@ -1,0 +1,295 @@
+@startuml 类图
+package com.jwork.app.utils {
+  ~class Pair<K, V> {
+    - key : K
+    - value : V
+    ~ Pair<K, V>(k : K, v : V)
+    + key() : K
+    + value() : V
+  }
+  class RandomUtil {
+    - set : Set<Integer> {static}
+    + RandomUtil()
+    + clearSet() {static}
+    + getRandom(min : int, max : int) : Integer {static}
+  }
+  class RecordLoader {
+    - recordNum : int
+    ~ records : String[]
+    + RecordLoader()
+    + displayOutput(terminal : AsciiPanel)
+    + respondToUserInput(key : KeyEvent) : Screen
+  }
+  class Recorder {
+    - lock : Lock {static}
+    - recording : boolean {static}
+    - writer : BufferedWriter {static}
+    ~ Recorder()
+    + beginRecord(kind : String, status : String) {static}
+    + endRecording() {static}
+    + isRecording() : boolean {static}
+    + saveOperation(operation : String) {static}
+    + saveStatus(status : String) {static}
+  }
+}
+package com.jwork.app.world {
+  class BulletAI {
+    - xSpeed : int
+    - ySpeed : int
+    + BulletAI(creature : Creature, xSpeed : int, ySpeed : int)
+    + onEnter(x : int, y : int, tile : Tile) : boolean
+    + onUpdate()
+    + xSpeed() : int
+    + ySpeed() : int
+  }
+  class CreatureAI {
+    # creature : Creature
+    + CreatureAI(creature : Creature)
+    + canSee(x : int, y : int) : boolean
+    + onEnter(x : int, y : int, tile : Tile) : boolean
+    + onNotify(message : String)
+    + onUpdate()
+  }
+  class CreatureFactory {
+    - world : World
+    + CreatureFactory(world : World)
+    + newBullet(camp : int, x : int, y : int, xSpeed : int, ySpeed : int, actionTime : int, attack : int, host : Creature) : Creature
+    + newMonster() : Creature
+    + newMonster(actionTime : int) : Creature
+    + newPlayer(id : int, messages : List<String>) : Creature
+    + newPlayer(messages : List<String>) : Creature
+  }
+  class Line {
+    - points : List<Point>
+    + Line(p1 : Point, p2 : Point)
+    + Line(x0 : int, y0 : int, x1 : int, y1 : int)
+    + getPoints() : List<Point>
+    + iterator() : Iterator<Point>
+  }
+  class MonsterAI {
+    - random : Random
+    + MonsterAI(creature : Creature)
+    - moveRandomly() : boolean
+    + onEnter(x : int, y : int, tile : Tile) : boolean
+    + onUpdate()
+  }
+  class PlayerAI {
+    - messages : List<String>
+    - win : boolean
+    + PlayerAI(creature : Creature, messages : List<String>)
+    + onEnter(x : int, y : int, tile : Tile) : boolean
+    + onNotify(message : String)
+    + onUpdate()
+    + win() : boolean
+  }
+  enum Tile {
+    + BEGINNING {static}
+    + BOUNDS {static}
+    + DOWN {static}
+    + ENDING {static}
+    + FLOOR {static}
+    + FLOWER {static}
+    + GRASS {static}
+    + LEFT {static}
+    + RIGHT {static}
+    + ROCK {static}
+    + TREE {static}
+    + UP {static}
+    + WALL {static}
+    - color : Color
+    - glyph : char
+    + color() : Color
+    + glyph() : char
+    + isBeginning() : boolean
+    + isDiggable() : boolean
+    + isEnding() : boolean
+    + isGround() : boolean
+    + valueOf(name : String) : Tile {static}
+    + values() : Tile[] {static}
+  }
+  class World {
+    + TILE_TYPES : int {static}
+    - bullets : List<Creature>
+    - creatures : Map<Integer, Creature>
+    - height : int
+    ~ lockForBulletChange : Lock
+    ~ lockForCreatureChange : Lock
+    + maxMonsterNum : int {static}
+    - player : Creature
+    - tiles : Tile[][]
+    - width : int
+    + World(tiles : Tile[][])
+    + addAtBeginning(creature : Creature)
+    + addAtCertainLocation(creature : Creature, x : int, y : int) : boolean
+    + addAtEmptyLocation(creature : Creature)
+    + addBullletAtCertainLocation(bullet : Creature, x : int, y : int) : boolean
+    + color(x : int, y : int) : Color
+    + creature(id : Integer) : Creature
+    + creature(x : int, y : int) : Creature
+    + dig(x : int, y : int)
+    + getBullets() : List<Creature>
+    + getCreatures() : List<Creature>
+    + getNearlyMonster(player : Creature) : Creature
+    + glyph(x : int, y : int) : char
+    + height() : int
+    + player() : Creature
+    + remove(target : Creature)
+    + removeBullet(target : Creature)
+    + setPlayer(creature : Creature)
+    + setTile(t : Tile, x : int, y : int)
+    + tile(x : int, y : int) : Tile
+    + update()
+    + width() : int
+  }
+  class WorldBuilder {
+    - height : int
+    - map : int[][]
+    - tiles : Tile[][]
+    - width : int
+    + WorldBuilder(width : int, height : int)
+    + build() : World
+    + getMap() : int[][]
+    + height() : int
+    + makeMap(mapFile : String) : WorldBuilder
+    - mapTiles(mapFile : String) : WorldBuilder
+    + width() : int
+  }
+}
+package com.jwork.app.map {
+  class MapEditer {
+    # isNew : boolean
+    # tmpMap : int[][]
+    + MapEditer(mapSelector : int, isNew : boolean)
+    # createWorld()
+    # displayTiles(terminal : AsciiPanel, left : int, top : int)
+    - getNextTile(t : Tile) : Tile
+    - getTileFromInt(x : int) : Tile
+    # initWorld()
+    + respondToUserInput(key : KeyEvent) : Screen
+    - saveMap()
+  }
+  class MapGenerator {
+    - height : int
+    - map : int[][]
+    - mapFile : String
+    - width : int
+    + MapGenerator(dim : int)
+    + MapGenerator(m : String)
+    + MapGenerator(width : int, height : int)
+    + generateMap()
+    + getHeight() : int
+    + getMap() : int[][]
+    + getWidth() : int
+  }
+}
+package com.jwork.app.screen {
+  class LoseScreen {
+    + LoseScreen()
+    + displayOutput(terminal : AsciiPanel)
+  }
+  class PlayScreen {
+    - exec : ExecutorService
+    # file : String
+    # loading : boolean
+    # map : String
+    # mapSelector : int
+    # messages : List<String>
+    # needLoad : boolean
+    # player : Creature
+    # reader : BufferedReader
+    # screenFrameLeft : int
+    # screenFrameTop : int
+    # screenHeight : int
+    # screenWidth : int
+    # world : World
+    # worldHeight : int
+    # worldWidth : int
+    + PlayScreen(file : String)
+    + PlayScreen(mapSelector : int)
+    - createCreatures(exec : ExecutorService, creatureFactory : CreatureFactory)
+    # createWorld()
+    # displayCreatures(terminal : AsciiPanel, left : int, top : int)
+    + displayOutput(terminal : AsciiPanel)
+    # displayTiles(terminal : AsciiPanel, left : int, top : int)
+    + getScrollX() : int
+    + getScrollY() : int
+    - getStatus() : String
+    # initWorld()
+    + loadOperationFromFile()
+    + respondToUserInput(key : KeyEvent) : Screen
+  }
+  abstract class RestartScreen {
+    + RestartScreen()
+    + displayOutput(AsciiPanel) {abstract}
+    + respondToUserInput(key : KeyEvent) : Screen
+  }
+  interface Screen {
+    + displayOutput(AsciiPanel) {abstract}
+    + respondToUserInput(KeyEvent) : Screen {abstract}
+  }
+  class StartScreen {
+    # frameHeight : int
+    # frameLeft : int
+    # frameTop : int
+    # frameWidth : int
+    - mapNum : int
+    # selector : int
+    + StartScreen()
+    # displayFrame(terminal : AsciiPanel)
+    + displayOutput(terminal : AsciiPanel)
+    + respondToUserInput(key : KeyEvent) : Screen
+  }
+  class WinScreen {
+    + WinScreen()
+    + displayOutput(terminal : AsciiPanel)
+    + respondToUserInput(key : KeyEvent) : Screen
+  }
+}
+package com.jwork.app.asciiPanel {
+  class AsciiCharacterData {
+    + backgroundColor : Color
+    + character : char
+    + foregroundColor : Color
+    + AsciiCharacterData()
+  }
+  class AsciiFont {
+    + CP437_10x10 : AsciiFont {static}
+    + CP437_12x12 : AsciiFont {static}
+    + CP437_16x16 : AsciiFont {static}
+    + CP437_8x8 : AsciiFont {static}
+    + CP437_9x16 : AsciiFont {static}
+    + DRAKE_10x10 : AsciiFont {static}
+    + MYUI_15_15 : AsciiFont {static}
+    + QBICFEET_10x10 : AsciiFont {static}
+    + TAFFER_10x10 : AsciiFont {static}
+    + TALRYTH_15_15 : AsciiFont {static}
+    - fontFilename : String
+    - height : int
+    - width : int
+    + AsciiFont(filename : String, width : int, height : int)
+    + getFontFilename() : String
+    + getHeight() : int
+    + getWidth() : int
+  }
+  interface TileTransformer {
+    + transformTile(int, int, AsciiCharacterData) {abstract}
+  }
+}
+PlayScreen -->  "-world" World
+CreatureFactory -->  "-world" World
+AsciiFont -->  "-CP437_12x12" AsciiFont
+AsciiFont -->  "-TALRYTH_15_15" AsciiFont
+AsciiFont -->  "-CP437_8x8" AsciiFont
+AsciiFont -->  "-CP437_9x16" AsciiFont
+AsciiFont -->  "-TAFFER_10x10" AsciiFont
+MapEditer --|> PlayScreen
+LoseScreen --|> RestartScreen
+PlayScreen ..|> Screen
+RestartScreen ..|> Screen
+StartScreen --|> RestartScreen
+WinScreen --|> RestartScreen
+RecordLoader --|> StartScreen
+BulletAI --|> CreatureAI
+MonsterAI --|> CreatureAI
+PlayerAI --|> CreatureAI
+@enduml
